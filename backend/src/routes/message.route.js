@@ -2,7 +2,7 @@ import express from "express";
 
 import { getUsersForSidebar, 
     getConversationsForSidebar, 
-    getMessages  } from "../controllers/message.controller.js";
+    getMessages, sendMessage, } from "../controllers/message.controller.js";
 
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/upload.middleware.js";
