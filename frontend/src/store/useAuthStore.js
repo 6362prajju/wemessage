@@ -5,48 +5,47 @@ import { io } from "socket.io-client";
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:4000" : "/";
 
 export const useAuthStore = create((set, get) => ({
-    authUser: null,
-    isCheckingAuth: true,
-    onlineUsers: [],
-    socket: null,
+  authUser: null,
+  isCheckingAuth: true,
+  onlineUsers: [],
+  socket: null,
 
-    checkAuth: async () => {
-        set({ isCheckingAuth: true,  });
+  checkAuth: async () => {
+    set({ isCheckingAuth: true });
 
-        try{
-            const res = await axiosInstance.get("/auth/check");
-            set({ authUser: res.data });
+    try {
+      const res = await axiosInstance.get("/auth/check");
+      set({ authUser: res.data });
 
-            get().connectSocket(res.data);
-        }
-        catch(error){
-            console.error("Error in checkAuth:", error);
-            set({authUser: null });
-        }finally{
-            set({ isCheckingAuth: false })
-        }
-    },
+      get().connectSocket(res.data);
+    } catch (error) {
+      console.error("Error in checkAuth:", error);
+      set({ authUser: null });
+    } finally {
+      set({ isCheckingAuth: false });
+    }
+  },
 
-    clearAuth: () => {
-        set({ authUser: null, isCheckingAuth: false, onlineUsers: [] });
-        get().disconnectSocket();
-    },
+  clearAuth: () => {
+    set({ authUser: null, isCheckingAuth: false, onlineUsers: [] });
+    get().disconnectSocket();
+  },
 
-    connectSocket: (user) => {
-        if(!user || get().socket?.connected) return
-        
-        const socket = io(BASE_URL, {query:{userId: user._id}})
+  connectSocket: (user) => {
+    if (!user || get().socket?.connected) return;
 
-        set({socket})
+    const socket = io(BASE_URL, { query: { userId: user._id } });
 
-        socket.on("getOnlineUsers", (userIds) => {
-            set({onlineUsers: userIds})
-        })
-    },
+    set({ socket });
 
-    disconnectSocket: () => {
+    socket.on("getOnlineUsers", (userIds) => {
+      set({ onlineUsers: userIds });
+    });
+  },
+
+  disconnectSocket: () => {
     const socket = get().socket;
     if (socket?.connected) socket.disconnect();
     set({ socket: null });
-    },
+  },
 }));
